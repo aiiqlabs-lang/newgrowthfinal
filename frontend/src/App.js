@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import Home from "@/pages/Home";
 import Careers from "@/pages/Careers";
 import Pricing from "@/pages/Pricing";
+import ChatBot from "@/components/ChatBot";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <ChatBot />
       </BrowserRouter>
     </div>
   );
