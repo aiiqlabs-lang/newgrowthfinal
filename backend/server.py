@@ -140,21 +140,17 @@ async def chat_with_ai(input: ChatMessage):
     try:
         session_id = input.session_id or str(uuid.uuid4())
         
-        # Initialize chat with Emergent Universal Key using Gemini
-        chat = LlmChat(
-            api_key=os.environ.get('EMERGENT_LLM_KEY'),
-            session_id=session_id,
-            system_message=SYSTEM_PROMPT
-        ).with_model("gemini", "gemini-2.0-flash")
+        # Initialize Gemini model
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            system_instruction=SYSTEM_PROMPT
+        )
         
-        # Create user message
-        user_message = UserMessage(text=input.message)
-        
-        # Send message and get response
-        response = await chat.send_message(user_message)
+        # Generate response
+        response = model.generate_content(input.message)
         
         return ChatResponse(
-            response=response,
+            response=response.text,
             session_id=session_id
         )
     except Exception as e:
