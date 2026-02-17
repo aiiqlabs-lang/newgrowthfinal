@@ -5,8 +5,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 
@@ -37,6 +37,25 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Contact Form Models
+class ContactSubmission(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: str
+    phone: Optional[str] = None
+    message: str
+    source: str = "general"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ContactSubmissionCreate(BaseModel):
+    name: str
+    email: str
+    phone: Optional[str] = None
+    message: str
+    source: str = "general"
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
@@ -65,6 +84,32 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     
     return status_checks
+
+# Contact Form Endpoints
+@api_router.post("/contact", response_model=ContactSubmission)
+async def submit_contact_form(input: ContactSubmissionCreate):
+    """Submit a contact form inquiry"""
+    submission_dict = input.model_dump()
+    submission_obj = ContactSubmission(**submission_dict)
+    
+    # Convert to dict and serialize datetime to ISO string for MongoDB
+    doc = submission_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.contact_submissions.insert_one(doc)
+    logger.info(f"New contact submission from {input.email} (source: {input.source})")
+    return submission_obj
+
+@api_router.get("/contact", response_model=List[ContactSubmission])
+async def get_contact_submissions():
+    """Get all contact form submissions"""
+    submissions = await db.contact_submissions.find({}, {"_id": 0}).to_list(1000)
+    
+    for submission in submissions:
+        if isinstance(submission.get('created_at'), str):
+            submission['created_at'] = datetime.fromisoformat(submission['created_at'])
+    
+    return submissions
 
 # Include the router in the main app
 app.include_router(api_router)
