@@ -4,9 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
+// Web3Forms access key - get yours free at https://web3forms.com
+const WEB3FORMS_ACCESS_KEY = process.env.REACT_APP_WEB3FORMS_KEY || "YOUR_ACCESS_KEY_HERE";
 
 const ContactForm = ({ title, subtitle, source = "general" }) => {
   const [formData, setFormData] = useState({
@@ -31,12 +31,29 @@ const ContactForm = ({ title, subtitle, source = "general" }) => {
     setError("");
 
     try {
-      await axios.post(`${BACKEND_URL}/api/contact`, {
-        ...formData,
-        source,
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          source: source,
+          subject: `New Contact from GrowthXAILabs - ${source}`,
+        }),
       });
-      setIsSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", message: "" });
+
+      const result = await response.json();
+      if (result.success) {
+        setIsSubmitted(true);
+        setFormData({ name: "", email: "", phone: "", message: "" });
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } catch (err) {
       setError("Something went wrong. Please try again.");
     } finally {
