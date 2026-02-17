@@ -115,6 +115,51 @@ async def get_contact_submissions():
     
     return submissions
 
+# Chatbot Models and Endpoints
+class ChatMessage(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
+class ChatResponse(BaseModel):
+    response: str
+    session_id: str
+
+SYSTEM_PROMPT = """You are a friendly and helpful AI assistant for GrowthXAILabs, a company that builds custom generative AI products. 
+
+About GrowthXAILabs:
+- We build custom generative AI products and solutions
+- Our services include: AI Strategy, Custom AI Products, and AI Integration
+- Our products: SalesOS (Revenue Intelligence), ResearchOS (Document Understanding), ComplianceOS (Compliance Verification)
+- We help businesses transform with AI technology
+
+Be helpful, concise, and friendly. If users ask about services or want to get started, encourage them to use the contact form on the website."""
+
+@api_router.post("/chat", response_model=ChatResponse)
+async def chat_with_ai(input: ChatMessage):
+    """Chat with AI assistant"""
+    try:
+        session_id = input.session_id or str(uuid.uuid4())
+        
+        # Initialize Gemini model
+        model = genai.GenerativeModel(
+            model_name="gemini-2.0-flash",
+            system_instruction=SYSTEM_PROMPT
+        )
+        
+        # Generate response
+        response = model.generate_content(input.message)
+        
+        return ChatResponse(
+            response=response.text,
+            session_id=session_id
+        )
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        return ChatResponse(
+            response="I'm sorry, I'm having trouble responding right now. Please try again or use the contact form to reach us directly.",
+            session_id=input.session_id or str(uuid.uuid4())
+        )
+
 # Include the router in the main app
 app.include_router(api_router)
 
