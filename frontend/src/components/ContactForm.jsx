@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 
-const BACKEND_URL = "https://growthxailabs.com";
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 
 const ContactForm = ({ title, subtitle, source = "general" }) => {
   const [formData, setFormData] = useState({
