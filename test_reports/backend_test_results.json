@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-02-17T08:06:20.747685",
+  "tests_run": 4,
+  "tests_passed": 3,
+  "success_rate": 75.0,
+  "results": [
+    {
+      "test_name": "API Health Check",
+      "success": true,
+      "details": "Status: 200, Response: {\"message\":\"Hello World\"}",
+      "timestamp": "2026-02-17T08:06:20.296080"
+    },
+    {
+      "test_name": "Contact Form Submission (POST)",
+      "success": true,
+      "details": "Status: 200, ID: adce12fc-84ca-4f1a-9ca0-d221e90d217c",
+      "timestamp": "2026-02-17T08:06:20.423193"
+    },
+    {
+      "test_name": "Contact Form Retrieval (GET)",
+      "success": true,
+      "details": "Status: 200, Found 3 submissions",
+      "timestamp": "2026-02-17T08:06:20.529506"
+    },
+    {
+      "test_name": "Contact Form Validation",
+      "success": false,
+      "details": "Status: 200, Response: {\"id\":\"5b7df4df-6525-4e34-abe2-981d9bdacd3e\",\"name\":\"\",\"email\":\"invalid-email\",\"phone\":null,\"message\":\"\",\"source\":\"general\",\"created_at\":\"2026-02-17T08:06:20.704598Z\"}",
+      "timestamp": "2026-02-17T08:06:20.746824"
+    }
+  ]
+}
